@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fine Tracker 💰</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .fine-entry {
+      background: #ffffff;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fine-entry h2 {
+      font-size: 18px;
+      margin: 0 0 4px 0;
+      color: #333;
+    }
+
+    .fine-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fine-controls input[type="number"] {
+      width: 80px;
+      padding: 8px;
+      font-size: 16px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .fine-controls button {
+      padding: 8px 14px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      background-color: #28a745;
+      cursor: pointer;
+    }
+
+    .fine-controls button:hover {
+      background-color: #218838;
+    }
+
+    .total {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 24px 0 12px;
+      color: #222;
+    }
+
+    .btn-save, .btn-clear {
+      display: block;
+      margin: 10px auto;
+      padding: 12px 18px;
+      font-size: 16px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background-color: #007bff;
+    }
+
+    .btn-save:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-clear {
+      background-color: #dc3545;
+    }
+
+    .btn-clear:hover {
+      background-color: #c82333;
+    }
+
+    @media (min-width: 600px) {
+      .fine-entry {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .fine-entry h2 {
+        font-size: 20px;
+      }
+
+      .fine-controls {
+        flex-direction: row;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Fine Tracker 💰</h1>
+
+  <div id="fineList"></div>
+
+  <div class="total" id="totalDisplay">Total Collected: ₹0</div>
+  <button class="btn-save" onclick="saveFines()">💾 Save Fines</button>
+  <button class="btn-clear" onclick="clearFines()">🗑️ Clear All</button>
+
+  <script>
+    const members = ["Accountant Zartab", "Adv. Adeel", "Er. Sahil", "Editor Aman", "Admin Shameel"];
+
+    function loadFines() {
+      const saved = JSON.parse(localStorage.getItem("fineData")) || {};
+      const list = document.getElementById("fineList");
+      list.innerHTML = "";
+
+      members.forEach((name, index) => {
+        const fine = saved[name] || 0;
+        const card = document.createElement("div");
+        card.className = "fine-entry";
+        card.innerHTML = `
+          <h2>${index + 1}. ${name}</h2>
+          <div class="fine-controls">
+            <input type="number" value="${fine}" onchange="updateTotal()">
+            <button onclick="addFine(this)">+ ₹10</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const inputs = document.querySelectorAll("#fineList input[type='number']");
+      let total = 0;
+      inputs.forEach(input => {
+        total += Number(input.value) || 0;
+      });
+      document.getElementById("totalDisplay").innerText = `Total Collected: ₹${total}`;
+    }
+
+    function addFine(button) {
+      const input = button.parentElement.querySelector("input[type='number']");
+      input.value = Number(input.value) + 10;
+      updateTotal();
+    }
+
+    function saveFines() {
+      const data = {};
+      const cards = document.querySelectorAll(".fine-entry");
+      cards.forEach(card => {
+        const name = card.querySelector("h2").innerText.split(". ")[1];
+        const fine = Number(card.querySelector("input").value) || 0;
+        data[name] = fine;
+      });
+      localStorage.setItem("fineData", JSON.stringify(data));
+      alert("✅ Fines saved!");
+    }
+
+    function clearFines() {
+      if (confirm("Are you sure you want to clear all fines?")) {
+        localStorage.removeItem("fineData");
+        loadFines();
+        alert("🗑️ All fines cleared!");
+      }
+    }
+
+    window.onload = loadFines;
+  </script>
+</body>
+</html>
